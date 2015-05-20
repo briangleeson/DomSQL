@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+	<feature url="features/com.ibm.domino.domsql.feature_1.0.0.jar" id="com.ibm.domino.domsql.feature" version="1.0.0"> 
+		<category name="OpenNTF Builds"/> 
+	</feature>
+	<feature url="features/com.ibm.domino.domsql.win32.feature_1.0.0.jar" id="com.ibm.domino.domsql.win32.feature" version="1.0.0"> 
+		<category name="OpenNTF Builds"/> 
+	</feature>
+	<feature url="features/com.ibm.domino.domsql.win64.feature_1.0.0.jar" id="com.ibm.domino.domsql.win64.feature" version="1.0.0"> 
+		<category name="OpenNTF Builds"/> 
+	</feature>
+	<feature url="features/com.ibm.domino.domsql.dots.feature_1.0.0.jar" id="com.ibm.domino.domsql.dots.feature" version="1.0.0">
+		<category name="OpenNTF Builds"/> 
+	</feature>
+	<feature url="features/com.ibm.domino.domsql.xpages.feature_1.0.0.jar" id="com.ibm.domino.domsql.xpages.feature" version="1.0.0"> 
+		<category name="OpenNTF Builds"/> 
+	</feature>
+	<category-def name="OpenNTF Builds" label="OpenNTF Builds">
+    	<description>DOTS DomSQL Update Site</description>
+	</category-def>
+</site>

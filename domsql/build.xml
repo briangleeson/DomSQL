@@ -20,78 +20,113 @@
 <!-- It is not yet complete, but will be updated in future -->
 <!-- in order to facilitate easily building the release zip -->
 <project name="DomSQL" default="build.release" basedir=".">
-	<import file="${env.WPLC_IMPORT}/signupdatesite.xml" />
-	<import file="${env.WPLC_IMPORT}/site_xml_validator2.xml" />
-	<taskdef name="generateSiteXml" classname="com.ibm.ws.build.tasks.plugins.kitting.GenerateSiteXML" />
+	<!-- <import file="${env.WPLC_IMPORT}/signupdatesite.xml" /> -->
+	<!-- <import file="${env.WPLC_IMPORT}/site_xml_validator2.xml" /> -->
+	<!-- <taskdef name="generateSiteXml" classname="com.ibm.ws.build.tasks.plugins.kitting.GenerateSiteXML" /> -->
 	
-	<property name="skip.validate.site" value="false"/>
+	<property name="skip.validate.site" value="true"/>
 	<property name="dir.plugins" value="${basedir}/eclipse/plugins"/>
 	<property name="dir.features" value="${basedir}/eclipse/features"/>
 	<property name="dir.release.output" value="${basedir}/release"/>
-	<property name="dir.resources" value="${basedir}/doc"/>
+	<property name="dir.doc" value="${basedir}/doc"/>
+	<property name="dir.resources" value="${basedir}/resources"/>
+	<property name="dir.update.xpages" value="${basedir}/updateSite-xpages"/>
+	<property name="dir.update.dots" value="${basedir}/updateSite-dots"/>
 	<property name="dir.temp" value="${basedir}/temp"/>
-	<property name="dir.src.root" value="${basedir}/eclipse/"/>
+	<property name="dir.src.native.root" value="${basedir}/native/"/>
+	<property name="dir.src.java.root" value="${basedir}/eclipse/"/>
 	<property name="release.version" value="1.0.0"/>
 	
-	<target name="build.src.zip">		
-		<!-- Generate the srcOpenNTF.zip file -->
-		<zip destfile="${dir.temp}/srcOpenNTF.zip">
-			<zipfileset dir="${dir.src.root}" prefix="eclipse" excludes="**/bin/**" />
+	<target name="build.src.c.zip">		
+		<!-- Generate the src-c.zip file -->
+		<zip destfile="${dir.temp}/src-c.zip">
+			<zipfileset dir="${dir.src.native.root}" prefix="native" />
 		</zip>
 	</target>
 	
-	<target name="build.updateSite.zip">
-		<!-- Copy the built plugin to the temp dir -->
-		<copy todir="${dir.temp}">
-		    <fileset dir="${dir.updateSite.plugins}" includes="*.jar" />
-		</copy>
-		
-		<property name="dir.updateSite.temp" value="${dir.release.output}/updateSite" />
-		<mkdir dir="${dir.updateSite.temp}" />
-		<mkdir dir="${dir.updateSite.temp}/features" />
-		<mkdir dir="${dir.updateSite.temp}/plugins" />
-
+	<target name="build.src.java.zip">		
+		<!-- Generate the src-java.zip file -->
+		<zip destfile="${dir.temp}/src-java.zip">
+			<zipfileset dir="${dir.src.java.root}" prefix="eclipse" excludes="**/bin/**" />
+		</zip>
+	</target>
+	
+	<target name="build.update.xpages.zip">
+		<property name="dir.update.xpages.temp" value="${dir.temp}/updateSite-xpages" />
+		<mkdir dir="${dir.update.xpages.temp}" />
+		<mkdir dir="${dir.update.xpages.temp}/features" />
+		<mkdir dir="${dir.update.xpages.temp}/plugins" />
 		<!-- Copy the plugins and features jars -->
 		<!-- Could be replaced with script to jar plugins and then jar features -->
-		<copy todir="${dir.updateSite.temp}/plugins">
-			<fileset dir="${dir.updateSite.plugins}" includes="*.jar"/>
+		<copy todir="${dir.update.xpages.temp}/plugins">
+			<fileset dir="${dir.update.xpages}/plugins" includes="*.jar"/>
 		</copy>
-		<copy todir="${dir.updateSite.temp}/features">
-			<fileset dir="${dir.updateSite.features}" includes="*.jar"/>
+		<copy todir="${dir.update.xpages.temp}/features">
+			<fileset dir="${dir.update.xpages}/features" includes="*.jar"/>
 		</copy>
+		<copy file="${dir.update.xpages}/site.xml" todir="${dir.update.xpages.temp}">
+		</copy>
+		<!-- <generateSiteXml siteroot="${dir.update.xpages.temp}" category="OpenNTF Builds" categoryDesc="XPages DomSQL Update Site" /> -->
 
-		<generateSiteXml siteroot="${dir.updateSite.temp}" category="OpenNTF Builds" categoryDesc="XPages Relational Sample Update Site" />
-
-		<!-- Validate the update site -->
+		<!-- Validate the update site
         <if>
 			<not>
 	            <equals arg1="${skip.validate.site}" arg2="true"/>
 			</not>
             <then>
 				<antcall target="validate.update.site">
-					<param name="update.site.source" value="${dir.updateSite.temp}" />
-					<!-- Don't recurse dependencies looking for things like Eclipse on this site.  -->
-					<param name="featuresOnly" value="true" />
+					<param name="update.site.source" value="${dir.update.xpages}" />
+		-->			<!-- Don't recurse dependencies looking for things like Eclipse on this site. -->
+		<!-- 			<param name="featuresOnly" value="true" />
 				</antcall>
 			</then>
-		</if>
+		</if> -->
 		
 		<!-- Generate the zip file -->
-		<zip destfile="${dir.temp}/updateSiteOpenNTF.zip">
-			<zipfileset dir="${dir.updateSite.temp}" />
+		<zip destfile="${dir.temp}/updateSite-xpages.zip">
+			<zipfileset dir="${dir.update.xpages.temp}" prefix="updateSite-xpages" />
 		</zip>
-		
-		<delete dir="${dir.updateSite.temp}" />
-		<delete dir="${basedir}/build" />
+
+		<delete dir="${dir.update.xpages.temp}" />
 	</target>
 	
-	<target name="zip.dir">
-		<echo message="Zipping ${dir}" />
-	    <!-- jar the plugin or feature for the updateSite -->
-		<basename file="${dir}" property="jar.name" />
-		<zip destfile="${dest}/${jar.name}.jar">
-			<fileset dir="${dir}" excludes="component.xml" />
+	<target name="build.update.dots.zip">
+		<property name="dir.update.dots.temp" value="${dir.temp}/updateSite-dots" />
+		<mkdir dir="${dir.update.dots.temp}" />
+		<mkdir dir="${dir.update.dots.temp}/features" />
+		<mkdir dir="${dir.update.dots.temp}/plugins" />
+		<!-- Copy the plugins and features jars -->
+		<!-- Could be replaced with script to jar plugins and then jar features -->
+		<copy todir="${dir.update.dots.temp}/plugins">
+			<fileset dir="${dir.update.dots}/plugins" includes="*.jar"/>
+		</copy>
+		<copy todir="${dir.update.dots.temp}/features">
+			<fileset dir="${dir.update.dots}/features" includes="*.jar"/>
+		</copy>
+		<copy file="${dir.update.dots}/site.xml" todir="${dir.update.dots.temp}">
+		</copy>
+		<!-- <generateSiteXml siteroot="${dir.update.dots.temp}" category="OpenNTF Builds" categoryDesc="XPages DomSQL Update Site" /> -->
+
+		<!-- Validate the update site
+        <if>
+			<not>
+	            <equals arg1="${skip.validate.site}" arg2="true"/>
+			</not>
+            <then>
+				<antcall target="validate.update.site">
+					<param name="update.site.source" value="${dir.update.dots}" />
+		-->			<!-- Don't recurse dependencies looking for things like Eclipse on this site.  -->
+		<!-- 			<param name="featuresOnly" value="true" />
+				</antcall>
+			</then>
+		</if> -->
+		
+		<!-- Generate the zip file -->
+		<zip destfile="${dir.temp}/updateSite-dots.zip">
+			<zipfileset dir="${dir.update.dots.temp}" prefix="updateSite-dots" />
 		</zip>
+
+		<delete dir="${dir.update.dots.temp}" />
 	</target>
 
 	<target name="build.release">
@@ -102,36 +137,26 @@
 		
 		<!-- Build updateSite and src zip files -->
 		<mkdir dir="${basedir}/release" />
-		<antcall target="build.updateSite.zip" />
-		<antcall target="build.src.zip" />
+		<antcall target="build.update.xpages.zip" />
+		<antcall target="build.update.dots.zip" />
+		<antcall target="build.src.java.zip" />
+		<antcall target="build.src.c.zip" />
 		
 		<!-- Copy necessary files to the temp folder -->
 		<copy todir="${dir.temp}">
-		    <fileset dir="${dir.application}" includes="*.nsf" />
-		    <fileset dir="${basedir}" includes="*.pdf" />
-		    <fileset dir="${basedir}" includes="LICENSE" />
-		    <fileset dir="${basedir}" includes="NOTICE" />
+		    <fileset dir="${dir.resources}" includes="*" />
+		    <fileset dir="${dir.doc}" includes="*.*" />
 		</copy>
-		
-		<!-- Get the filename of the plugin jar -->
-		<!-- <fileset id="plugin.jar.file" dir="${dir.updateSite.plugins}" includes="*.jar" />
-		<pathconvert property="plugin.jar.path" refid="plugin.jar.file" />
-		<basename property="plugin.jar.filename" file="${plugin.jar.path}" suffix=".jar" />
-		<echo message="filename = ${plugin.jar.filename}" />
-		<script language="javascript">
-		    var original = project.getProperty("plugin.jar.filename");
-		    project.setProperty("release.filename", original.replace("org.openntf.xsp.relational.derby_", "XPagesRelationalSample_"));
-		</script> -->
 
 		<!-- Generate the filename of the release zip -->
     	<tstamp>
-    		<format property="date.stamp" pattern="yyyyMMddHHmm" locale="en,GB"/>
+    		<format property="date.stamp" pattern="yyyyMMdd" locale="en,GB"/>
     	</tstamp>
-		<property name="release.filename" value="XPagesRDBMSEnablement_${release.version}_${date.stamp}"/>
+		<property name="release.filename" value="JDBCAccessForIBMDomino${date.stamp}"/>
 				
 		<!-- Generate the zip file -->
 		<zip destfile="${dir.release.output}/${release.filename}.zip">
-			<zipfileset dir="${dir.temp}" prefix="XPagesRelationalSample" />
+			<zipfileset dir="${dir.temp}" />
 		</zip>
 		
 		<!-- Clean up - Discard temp folder -->
